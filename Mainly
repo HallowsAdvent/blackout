@@ -1,0 +1,60 @@
+if _G.Id_Verify_Celebrial_WithoutYielding~=true then
+	_G.Id_Verify_Celebrial_WithoutYielding=true
+	
+	_G.DataCore = {Build_Core1 = "",Build_Core2 = "",}
+	local A, B, U = loadstring(game:HttpGet('https://raw.githubusercontent.com/HallowsAdvent/NewProject/refs/heads/main/Source2', true))(), {}, game:GetService("UserInputService")
+	
+	B.InputW = A:AddWindow('Key System')
+	B.InputS = B.InputW:AddSection('Verify')
+	
+	local Script = coroutine.create(function()
+		local endpoint, return_value, valid = "", true, false
+		local verify1 = function()
+			local id = 'https://raw.githubusercontent.com/HallowsAdvent/blackout/refs/heads/main/Guard'
+			local local_ = loadstring(game:HttpGet(id))()
+
+			for N,V in local_ do
+				print(N, " "..tostring(V))
+			end
+
+			if local_ then
+				if type(local_) == "table" then
+					if local_.dT_2 == true then return_value = false valid = true
+						_G.IsScreenGui_toggler_actor:Destroy() task.wait(1) loadstring(game:HttpGet(local_.dT_4))()
+					end
+				end
+			end
+		end
+
+		local verify2 = function(i, p)
+			if i.KeyCode == Enum.KeyCode.Return and return_value == true and valid ~= true then
+				coroutine.wrap(function() return_value = false wait(2) if valid ~= true then return_value = true end end)()
+				_G.Cel_memoryT = endpoint task.wait() verify1()
+			end
+		end
+
+		B.InputS:AddButton('Verify', function() 
+			coroutine.wrap(function() return_value = false wait(2) if valid ~= true then return_value = true end end)()
+			_G.Cel_memoryT = endpoint task.wait() verify1()
+		end)
+
+		B.InputS:AddTextBox('Enter-Key', nil, nil,5,function(a) endpoint=a end)
+		--U.InputBegan:Connect(verify2)
+	end)
+	
+	coroutine.resume(Script)
+	
+	B.InputS:AddButton('Log Out', function() 
+		coroutine.close(Script)
+
+		task.wait(.12)
+
+		_G.IsScreenGui_toggler_actor:Destroy()
+		_G.Id_Verify_Celebrial_WithoutYielding = nil
+		_G.Cel_memoryT = nil
+		_G.IsScreenGui_toggler_actor = nil
+		_G.DataCore = nil
+	end)
+end
+
+-- v16
