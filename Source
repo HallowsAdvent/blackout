@@ -1,0 +1,955 @@
+if _G.dawg_cbrl ~= true then
+	_G.dawg_cbrl = true
+
+	local ACTIVE_MODIFIES = {}
+	game.CoreGui:SetAttribute("Celebrial_Destroying", false)
+
+
+	local ScriptDB = {
+
+		ScriptBuild =				"Alpha v0.1",
+		ScriptType =				"Legit",
+
+		ScriptName =				"Celebrials",
+		ScriptSupport =				"Blackout: Revival",
+
+		Membership_Info =			_G.Memberships_logger,
+	}
+
+	local A = 'https://raw.githubusercontent.com/HallowsAdvent/NewProject/refs/heads/main/Source2'
+	local B = {}
+
+	B.Plugins = {}
+	B.Scripts = {}
+	B.Assets =  {}
+
+	B.Plugins.__Commas = function(data) local vdata = data local gdata while game do vdata, gdata = string.gsub(vdata, '^(-?%d+)(%d%d%d)', '%1,%2') if (gdata == 0) then break end end return vdata end
+
+	local C = {
+
+		Build_Core1 = ScriptDB.ScriptName.."."..ScriptDB.ScriptSupport.." | "..ScriptDB.ScriptBuild,
+		Build_Core2 = "Subscribe-days left: "..tostring(B.Plugins.__Commas(ScriptDB.Membership_Info.Days)),
+	}
+
+	local Init = function(DataCore)
+		_G.DataCore = DataCore
+	end
+
+	if type(A) == "string" and string.find(string.lower(A), "githubusercontent") then Init(C) A = loadstring(game:HttpGet(A, true))() end
+
+	--  //  0  \\  --
+	--local Sections = B.Assets.Sections
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local PlayerService = game:GetService("Players")
+	local RunService = game:GetService("RunService")
+	local Player = PlayerService.LocalPlayer
+
+	local camera = workspace.CurrentCamera
+	local mousee = Player:GetMouse()
+
+	local M = {}
+
+	M.Functions = {}
+	M.Library = {}
+	M.Local = {}
+	
+	B.Values =  {}
+	B.Assets.Windows = {
+
+		Combat = 		A:AddWindow('Combat'),
+		Visual = 		A:AddWindow('Palpability'),
+		Misc =   		A:AddWindow('Miscellaneous'),
+		Membership =    A:AddWindow('Membership'),
+		WaterM = 		A:AddWatermark('')
+	}
+	local wd = B.Assets.Windows
+
+	B.Assets.Sections = {
+
+		Combat = {
+			P_Aim = wd.Combat:AddSection('Players')	,
+			N_Aim = wd.Combat:AddSection('NPCs')	,
+		},
+		Visual = {
+			Sense = wd.Visual:AddSection('Palpability'),
+			Sense2 = wd.Visual:AddSection('Other'),
+		},
+		Misc = {
+			Character = wd.Misc:AddSection('Character'),
+			Movement = wd.Misc:AddSection('Movement'),
+			Crosshair = wd.Misc:AddSection('Crosshair'),
+		},
+		Membership = {
+			Information = wd.Membership:AddSection('♥')
+		},
+
+	}
+
+	M.Library.Sections = B.Assets.Sections
+
+	local Script = coroutine.create(function()
+		M.Services = {
+			ReplicatedFirst = 				game:GetService("ReplicatedFirst"),
+			ReplicatedStorage = 			game:GetService("ReplicatedStorage"),
+
+			StarterGui = 					game:GetService("StarterGui"),
+			StarterPack = 					game:GetService("StarterPack"),
+			StarterPlayer = 				game:GetService("StarterPlayer"),
+
+			Players = 						game:GetService("Players"),
+			Lighting = 						game:GetService("Lighting"),
+			Workspace = 					game:GetService("Workspace"),
+
+			RunService = 					game:GetService("RunService"),
+			TweenService = 					game:GetService("TweenService"),
+		}
+
+		M.Local.Camera = M.Services.Workspace.CurrentCamera
+		M.Local.Player = M.Services.Players.LocalPlayer
+		M.Local.Mouse = M.Local.Player:GetMouse()
+
+		M.Functions.CreateInstance = function(instance, PropertyBase, Parent)
+			local connected_instance = Instance.new(instance)
+			for PropertyName, PropertyValue in PropertyBase do
+				if PropertyName ~= "Parent" then
+					connected_instance[PropertyName] = PropertyValue
+				end
+			end 
+
+			if Parent then connected_instance.Parent = Parent end
+			return connected_instance
+		end
+
+		M.Functions.FindInstance = function(PropertyTable, ParentFolder, IsMulti)
+			local PossibleFinds = {}
+			local PossibleFind = nil
+
+			if ParentFolder then
+				for _, V in ParentFolder do
+					if string.lower(V.ClassName) == string.lower(PropertyTable.Class) and string.lower(V.Name) == string.lower(PropertyTable.Name) then
+						if IsMulti then
+							table.insert(PossibleFinds, V)
+						else
+							PossibleFind = V
+						end
+					end
+				end
+			end
+		end
+
+		M.Functions.GetOwnCharacter = function()
+			return M.Local.Player.Character
+		end
+
+		M.Functions.GetCharacter = function(Player)
+			if Player ~= M.Local.Player then
+				return Player.Character
+			else
+				return M.Functions.GetOwnCharacter()
+			end
+		end
+		
+		
+		
+		local AimlockTable = {
+			Radius = 200,
+			Color = Color3.fromRGB(60, 255, 0),
+			NumSides = 64,
+			Filled = false,
+			Visible = true,
+			Thickness = 1,
+			Transparency = 0,
+			Position = Vector2.new(M.Local.Camera.ViewportSize.X / 2, M.Local.Camera.ViewportSize.Y / 2)
+		}
+
+		local I_aimlock = Drawing.new("Circle")
+		for PropertyName, PropertyValue in AimlockTable do
+			I_aimlock[PropertyName] = PropertyValue
+		end
+
+
+		local Crosshair = {}
+		task.spawn(function()
+			Crosshair.defaults = {
+				["Lines 1"] = 		99889902798389,
+				["Circle 1"] = 		81340365683174,
+				["Circle 2"] = 		136837163590802,
+				["Circle 3"] = 		102905283755286,
+				["Circle 4"] = 		83335526367176,
+				["Circle 5"] = 		87547903982672,
+				["Circle 6"] = 		83053021526164,
+				["Circle 7"] = 		111309197797890,
+				["Circle 8"] = 		133888102128265,
+				["Heart 1"] = 		88466704493625,
+				["Focus 1"] = 		115424703989562,
+				["Focus 2"] = 		116342124658278,
+				["Hello Kitty"] = 	122334015699194,
+				["Anime 1"] = 		132635850677690,
+				["Scope 1"] = 		117164191256894,
+			}
+
+			Crosshair.init = function()
+				Crosshair.cross_settings = {}
+				Crosshair.VisualFolder = Instance.new("Folder", game.CoreGui)		
+			end
+
+			Crosshair.unload = function()
+				Crosshair.cross_settings = nil
+				if Crosshair.VisualFolder then pcall(function()
+						Crosshair.VisualFolder:Destroy()
+					end)
+				end
+			end
+
+			Crosshair.update = function(Mode, Settings)
+				if Crosshair.VisualFolder then
+					if Mode == "new" then
+						Settings = Settings or {}
+
+						for _, old in Crosshair.VisualFolder:GetChildren() do
+							if old:IsA("ScreenGui") and old:HasTag("IsCrosshair") then old:Destroy() end
+						end
+
+						local NewScreen = Instance.new("ScreenGui", Crosshair.VisualFolder)
+						NewScreen.Enabled = true
+						NewScreen.ResetOnSpawn = false
+						NewScreen.IgnoreGuiInset = true
+						NewScreen.DisplayOrder = 9999999
+						NewScreen:AddTag("IsCrosshair")
+
+						local NewImage = Instance.new("ImageLabel", NewScreen)
+						NewImage.Name = "crosshair"
+						NewImage.AnchorPoint = Vector2.new(0.5, 0.5)
+						NewImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						NewImage.BackgroundTransparency = 1
+						NewImage.BorderSizePixel = 0
+						NewImage.Interactable = 0
+						NewImage.LayoutOrder = 0
+						NewImage.Active = false
+						NewImage.Position = UDim2.new(0.5, 0, 0.5, 0)
+						NewImage.Size = UDim2.new(0, 20, 0, 20)
+						NewImage.Rotation = 0
+						NewImage.Visible = true
+						NewImage.ZIndex = 9
+						-- Yes
+						NewImage.ImageRectSize = Vector2.new(0, 0)
+						NewImage.ImageRectOffset = Vector2.new(0, 0)
+						NewImage.ScaleType = Enum.ScaleType.Stretch
+						NewImage.SizeConstraint = Enum.SizeConstraint.RelativeXY
+
+						NewImage.Image = 			"rbxassetid://"..Settings.Crosshair_Image or "rbxassetid://"..Crosshair.defaults["Lines 1"]
+						NewImage.ImageColor3 = 		Settings.Crosshair_Color or Color3.fromRGB(255, 255, 255)
+						NewImage.ResampleMode = 	Settings.Crosshair_ViewMode or Enum.ResamplerMode.Default
+						NewImage.ImageTransparency = Settings.Crosshair_Transparency or 0
+
+						local NewScale = Instance.new("UIScale", NewImage)
+						NewScale.Name = "scale"
+						NewScale.Scale = 			Settings.Crosshair_Scale or 1
+
+						Crosshair.CurrentCross = NewScreen
+					elseif Mode == "update" or Mode == "upd" then
+						Settings = Settings or {}
+
+						local NewImage = Crosshair.CurrentCross.crosshair
+						-- Yes
+						NewImage.ImageRectSize = Vector2.new(0, 0)
+						NewImage.ImageRectOffset = Vector2.new(0, 0)
+						NewImage.ScaleType = Enum.ScaleType.Stretch
+						NewImage.SizeConstraint = Enum.SizeConstraint.RelativeXY
+
+						NewImage.Image = 			"rbxassetid://"..Settings.Crosshair_Image or "rbxassetid://"..Crosshair.defaults["Lines 1"]
+						NewImage.ImageColor3 = 		Settings.Crosshair_Color or Color3.fromRGB(255, 255, 255)
+						NewImage.ResampleMode = 	Settings.Crosshair_ViewMode or Enum.ResamplerMode.Default
+						NewImage.ImageTransparency = Settings.Crosshair_Transparency or 0
+
+						local NewScale = NewImage.scale
+						NewScale.Scale = 			Settings.Crosshair_Scale or 1
+					end
+				end
+			end
+
+			Crosshair.remove = function(AnyCrosshair)
+				if Crosshair.VisualFolder then
+					AnyCrosshair = AnyCrosshair or Crosshair.CurrentCross
+
+					if AnyCrosshair ~= nil then
+						Crosshair:Destroy()
+					end
+				end
+			end
+
+			Crosshair.toggle = function(Boolean)
+				if Crosshair.VisualFolder then
+					if Crosshair.CurrentCross ~= nil then
+						Crosshair.CurrentCross.Enabled = Boolean
+					end
+				end
+			end
+
+			Crosshair.new = function(mode, settings_i)
+				Crosshair.update(mode, settings_i)
+			end
+		end)
+		
+		
+		
+		local Palpability = {}
+		task.spawn(function()
+			local I_esp = {
+				BillSize = UDim2.new(1000,0,1000,0),
+				FrameSize = UDim2.new(0.005,0,0.005,0),
+				FramePos = UDim2.new(0.5,0,0.5,0),
+				FramePoint = Vector2.new(0.5,0.5),
+				FrameColor = Color3.fromRGB(255,255,255),
+				Gm = game.Workspace.Terrain,
+				Gm1 = "espcnc"
+			}
+
+			local M_esp = M.Functions.CreateInstance("Folder", {Name = "tempest attachments"}, game.Workspace.Terrain)
+			local F_esp = {
+
+				Players = M.Functions.CreateInstance("Folder", {Name = 'gg lol'}, M_esp),
+				NPCs = M.Functions.CreateInstance("Folder", {Name = 'gg lol'}, M_esp),
+			}
+			
+			Palpability.Config = {
+				
+				Enabled = true,
+				MaxDistance = 3000,
+				Color = Color3.fromRGB(255, 255, 255),
+				
+			}
+			
+			Palpability.Directory = M_esp
+			Palpability.new = function(Object, BasedProperties)
+				local EDBT = {}
+
+				EDBT.NiceFolder = Palpability.Directory
+				EDBT.Parent = BasedProperties.Parent
+
+				EDBT.Objects = {}
+
+				EDBT.ScreenBoard = M.Functions.CreateInstance("BillboardGui", {
+					Name = "N1",
+					Enabled = true,
+					Adornee = Object,
+					LightInfluence = 0,
+					AlwaysOnTop = true,
+					Size = BasedProperties.GuiSize or I_esp.BillSize,
+					ResetOnSpawn = false,
+					MaxDistance = Palpability.Config.MaxDistance
+				}, BasedProperties.Parent)
+
+				EDBT.VectorFrame = M.Functions.CreateInstance("Frame", {
+					Name = "N2",
+					Position = I_esp.FramePos,
+					Size = I_esp.FrameSize,
+					BackgroundTransparency = 1,
+					AnchorPoint = I_esp.FramePoint
+				}, EDBT.ScreenBoard)
+
+				EDBT.VectorStroke = M.Functions.CreateInstance("UIStroke", {
+					Name = "N3",
+					Thickness = 2,
+					Color = BasedProperties.Color or I_esp.FrameColor,
+					LineJoinMode = Enum.LineJoinMode.Miter
+				}, EDBT.VectorFrame)
+
+				EDBT.VectorTLabel = M.Functions.CreateInstance("TextLabel", {
+					Name = "N4",
+					Text = BasedProperties.Text or "",
+					TextSize = 14,
+					TextWrapped = true,
+					TextColor3 = BasedProperties.Color or I_esp.FrameColor,
+					TextStrokeTransparency = 0,
+					BackgroundTransparency = 1,
+					Font = "MontserratBold",
+					Position = UDim2.new(0.5,0,0.503,0),
+					Size = UDim2.new(0,500,0,50),
+					AnchorPoint = I_esp.FramePoint
+				}, EDBT.ScreenBoard)
+			end
+			
+			Palpability.remove = function(Object_OR_Frame, DirectoryFrame)
+				if Object_OR_Frame:IsA("BillboardGui") then
+					Object_OR_Frame:Destroy()
+				elseif Object_OR_Frame:IsA("Player") then
+					local Character = Object_OR_Frame.Character
+					local HRP
+					if Character then
+						HRP = Character:FindFirstChild("HumanoidRootPart")
+					end
+					
+					for _, Frame in DirectoryFrame:GetChildren() do
+						if (Frame.Adornee == HRP or Frame.Adornee == Character) then
+							Frame:Destroy()
+						end
+					end
+				end
+			end
+			
+			Palpability.UpdateFrames = function(FrameDirectory, Property)
+				for _, Frame in FrameDirectory:GetChildren() do
+					if Frame:IsA("BillboardGui") then
+						Frame[Property[1]] = Property[2]
+					end
+				end
+			end
+			
+			Palpability.players_upd = function(Boolean)
+				if Boolean then
+					for _, Player in M.Services.Players:GetPlayers() do
+						if Player ~= M.Local.Player then
+							if Player.Character then
+								if Player.Character:FindFirstChild("HumanoidRootPart") then
+									local Apart = Player.Character:FindFirstChild("HumanoidRootPart")
+									B.Scripts.CreatePossibleEsp(Apart, {Text = Player.Name, Color = Palpability.Config.Color, Parent = F_esp.Players})
+								end
+							end
+						end
+					end
+				else
+					F_esp.Players:ClearAllChildren()
+				end
+			end
+			
+			M.Library.Sections.Visual.Sense:AddLabel('Players')
+
+			M.Library.Sections.Visual.Sense:AddToggle('Player-Esp', Palpability.Config.Enabled, Enum.KeyCode.K, function(Boolean)
+				Palpability.Config.Enabled = Boolean
+				Palpability.players_upd(Boolean)
+			end)
+		end)
+		
+		local StaminaMod = {}
+		task.spawn(function()
+			
+			StaminaMod.StaminaLevel = 100
+			StaminaMod.StaminaEnabled = false
+			
+			StaminaMod.AntiSprintSpent = false
+			
+			StaminaMod.new = function()
+				coroutine.wrap(function()
+					while StaminaMod.StaminaEnabled == true do task.wait()
+						Player.PlayerGui:SetAttribute(
+							'Stamina', 
+							StaminaMod.StaminaLevel
+						)
+					end
+				end)()
+			end
+			
+			Player.Character:GetAttributeChangedSignal('Sprinting'):Connect(function()
+				if StaminaMod.AntiSprintSpent == true then
+					Player.Character:SetAttribute(
+						'Sprinting', 
+						false
+					)
+				end
+			end)
+
+			M.Library.Sections.Misc.Movement:AddToggle('Inf-Stamina', StaminaMod.StaminaEnabled, nil, function(Boolean)
+				StaminaMod.StaminaEnabled = Boolean
+				StaminaMod.new()
+			end)
+			
+			M.Library.Sections.Misc.Movement:AddToggle('No Sprint-Stamina', StaminaMod.AntiSprintSpent, nil, function(Boolean)
+				StaminaMod.AntiSprintSpent = Boolean
+			end)
+		end)
+		
+		
+		local WalkspeedMod = {}
+		task.spawn(function()
+			
+			WalkspeedMod.Speed = 16
+			WalkspeedMod.SpeedApplying = false
+			
+			WalkspeedMod.newSpeed = function()
+				coroutine.wrap(function()
+					while WalkspeedMod.SpeedApplying == true do task.wait()
+						if Player.Character then
+							if Player.Character:FindFirstChild("Humanoid") then
+								Player.Character:FindFirstChild("Humanoid").WalkSpeed = WalkspeedMod.Speed
+							end
+						end
+					end
+				end)()
+			end
+			
+			M.Library.Sections.Misc.Character:AddToggle('WalkSpeed', WalkspeedMod.SpeedApplying, Enum.KeyCode.NumLock, function(Boolean)
+				WalkspeedMod.SpeedApplying = Boolean
+				if Boolean == true then
+					WalkspeedMod.newSpeed()
+				end
+			end)
+			
+			M.Library.Sections.Misc.Character:AddSlider('Speed', 120, 0, 16, function(Number)
+				WalkspeedMod.Speed = Number
+			end)
+		end)
+		
+		local TeleportTool = function()
+			local TeleportHandle = M.Functions.CreateInstance("Tool", {
+				Name = "CLICK-TP",
+				RequiresHandle = false,
+			}, M.Local.Player.Backpack)
+
+			TeleportHandle.Activated:Connect(function(DBT)
+				DBT = {
+					Character = M.Functions.GetOwnCharacter(),
+					Mouse = M.Local.Mouse,
+					HRP = M.Functions.GetOwnCharacter():FindFirstChild("HumanoidRootPart")
+				}
+
+				if not DBT.Character or not DBT.HRP then return end
+				DBT.CFrame = CFrame.new(DBT.Mouse.Hit.X, DBT.Mouse.Hit.Y + 3, DBT.Mouse.Hit.Z, select(4, DBT.HRP.CFrame:components()))
+			end)
+		end
+		
+		local Toggle_CameraProperties = function(Boolean, Property)
+			local CameraDistance = function()
+				if Boolean then Player.CameraMaxZoomDistance = 1000 else Player.CameraMaxZoomDistance = 10 end
+			end
+
+			local CameraMode = function()
+				if Boolean then Player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Invisicam 
+				else Player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom end
+			end
+
+			if string.lower(Property) == "distance" then
+				CameraDistance()
+			elseif string.lower(Property) == "mode" then
+				CameraMode()
+			end
+		end
+		
+		local dawg_aim = {}
+		pcall(function()
+			dawg_aim.Players = {
+				Enabled = true,
+				Distance = 450,
+				DeadCheck = false,
+				FriendCheck = false,
+				LockPart = "Head",
+				
+				Sensitivity = 0.5,
+			}
+			dawg_aim.NPCs = {
+				Enabled = true,
+				Distance = 200,
+				DeadCheck = false,
+				LockPart = "Head",
+				
+				Sensitivity = 0.5,
+			}
+			
+			dawg_aim.Enabled = false
+			
+			dawg_aim.CurrentPartAim = nil
+			dawg_aim.CurrentMode = dawg_aim.Players
+			
+			local Aimlock_temps = {target = nil,is_m2_p = false} 
+			local f_d = {}
+			
+			local chart = {}
+			
+			f_d.Target = nil
+			f_d.getTarget = function(Type)
+				dawg_aim.CurrentMode = Type
+				
+				local YLS = {
+					
+					Distance = dawg_aim.CurrentMode.Distance,
+					PartName = dawg_aim.CurrentMode.LockPart,
+					GetNames = nil,
+					
+					CurrentTarget = nil,
+				}
+				
+				local Collected_Characters = {}
+				
+				local IsAcceptedCharacter = function(Character, mode)
+					local char_p = {}
+					if mode.Enabled ~= true then
+						return false else
+						
+						if Character:FindFirstChild(YLS.PartName) then
+							char_p.mpart = Character[YLS.PartName]
+							if Character:FindFirstChild("Humanoid") then
+								char_p.hum = Character["Humanoid"]
+								
+								if mode.DeadCheck then
+									if char_p.hum.Health > 0 then
+										char_p.alive = true
+									end
+								end
+								
+								if mode == dawg_aim.Players then
+									if mode.FriendCheck then
+										local ppp = PlayerService:GetPlayerFromCharacter(Character)
+										if ppp:IsFriendsWith(Player.UserId) then
+											char_p.friend = false
+										end
+									end
+								end
+							end
+						end
+					end
+					
+					if (char_p.mpart and char_p.hum) then
+						if (char_p.alive ~= nil) then
+							if char_p.alive ~= true then
+								return false else return true
+							end
+						elseif (char_p.friend ~= nil) then
+							if char_p.friend ~= false then
+								return false else return true
+							end
+						end
+					else
+						return false
+					end
+				end
+				
+				if dawg_aim.Players.Enabled then
+					for _, plr in PlayerService:GetPlayers() do
+						if plr.Character then
+							if IsAcceptedCharacter(plr.Character, dawg_aim.NPCs) == true then
+								Collected_Characters[plr.Character.Name..".player"] = plr.Character
+							end
+						end 
+					end
+				end
+				
+				if dawg_aim.NPCs.Enabled then
+					for _, npc_f in workspace.NPCs:GetChildren() do
+						for _, npc in npc_f:GetChildren() do
+							if IsAcceptedCharacter(npc, dawg_aim.NPCs) == true then
+								Collected_Characters[npc.Name..".npc"] = npc
+							end
+						end
+					end
+				end
+				
+				for CharacterNames, CharacterUsage in Collected_Characters do
+					local GetTable = {}
+					
+					GetTable.HRP = CharacterUsage:FindFirstChild("HumanoidRootPart")
+					GetTable.HUM = CharacterUsage:FindFirstChild("Humanoid")
+					
+					local CurrentT 
+					local SplitIndex = string.split(CharacterNames, ".")
+					
+					if SplitIndex[2] == "player" then
+						CurrentT = dawg_aim.Players
+					elseif SplitIndex[2] == "npc" then
+						CurrentT = dawg_aim.NPCs
+					else 
+						return
+					end
+					
+					
+					if (M.Functions.GetOwnCharacter().HumanoidRootPart.Position - GetTable.HRP.Position).Magnitude < CurrentT.Distance then
+						local set_target = function()
+							local r,v = M.Local.Camera:WorldToViewportPoint(CharacterUsage[CurrentT.LockPart].Position)
+							if v then
+								local m = (Vector2.new(M.Local.Mouse.X, M.Local.Mouse.Y) - Vector2.new(r.X, r.Y)).Magnitude
+								if m < CurrentT.Distance and m < I_aimlock.Radius then
+									YLS.Distance = m
+									chart[1] = CharacterUsage
+									chart[2] = CharacterNames
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			local SplitIndex2 = string.split(chart[2], ".")
+			
+			if SplitIndex2[2] == "player" then
+				dawg_aim.CurrentMode = dawg_aim.Players
+			elseif SplitIndex2[2] == "npc" then
+				dawg_aim.CurrentMode = dawg_aim.NPCs
+			end
+			
+			local UIS = game:GetService("UserInputService")
+			local TSS = game:GetService("TweenService")
+
+			local RSS = game:GetService("RunService")
+			local PSS = game:GetService("Players")
+
+			UIS.InputEnded:Connect(function(Input, GameProccess)
+				if GameProccess then return end
+				if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+					Aimlock_temps.is_m2_p = false
+				end
+			end)
+
+			UIS.InputBegan:Connect(function(Input, GameProccess)
+				if GameProccess then return end
+				if dawg_aim.Enabled then
+					if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+						Aimlock_temps.is_m2_p = true
+						f_d.getTarget()
+					end
+				end
+			end)
+
+			coroutine.wrap(function()
+				while true do RSS.Heartbeat:Wait()
+					pcall(function()
+						if M.Functions.GetOwnCharacter() then
+							if M.Functions.GetOwnCharacter():FindFirstChild("HumanoidRootPart") then
+								local gotten_vctr
+								if chart[1] then
+									gotten_vctr = chart[1][dawg_aim.CurrentPartAim].Position
+									local tss = TSS:Create(M.Local.Camera, TweenInfo.new(dawg_aim.CurrentMode.Sensitivity, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {CFrame = CFrame.lookAt(M.Local.Camera.CFrame.Position, gotten_vctr)})
+									if UIS.MouseBehavior == Enum.MouseBehavior.LockCenter and Aimlock_temps.is_m2_p == true then
+										tss:Play()
+										coroutine.wrap(function()
+											task.wait()
+											if UIS.MouseBehavior ~= Enum.MouseBehavior.LockCenter or Aimlock_temps.is_m2_p ~= true then
+												tss:Pause()
+											end
+										end)()
+									end
+								end
+							end
+						end
+					end)
+				end
+			end)()
+
+
+			task.spawn(function()
+				M.Library.Sections.Combat.P_Aim:AddToggle('Toggle Locking', dawg_aim.Players.Enabled, Enum.KeyCode.L, function(Boolean)
+					dawg_aim.Players.Enabled = Boolean
+				end)
+
+				M.Library.Sections.Combat.P_Aim:AddToggle('Dead Check', dawg_aim.Players.DeadCheck, nil, function(Boolean)
+					dawg_aim.Players.DeadCheck = Boolean
+				end)
+				
+				M.Library.Sections.Combat.P_Aim:AddToggle('Friend Check', dawg_aim.Players.FriendCheck, nil, function(Boolean)
+					dawg_aim.Players.FriendCheck = Boolean
+				end)
+
+				M.Library.Sections.Combat.P_Aim:AddSlider('Locking Sense', 3, 0.075, 0.5, function(Number)
+					dawg_aim.Players.Sensitivity = Number
+				end)
+
+				M.Library.Sections.Combat.P_Aim:AddSlider('Locking Distance', 2000, 100, 450, function(Number)
+					dawg_aim.Players.Distance = Number
+				end)
+
+				M.Library.Sections.Combat.P_Aim:AddDropdown('Locking Part',{'Head','Torso','HumanoidRootPart'},'Head',function(a) 
+					dawg_aim.Players.LockPart = a
+				end)
+			end)
+			
+			task.spawn(function()
+				M.Library.Sections.Combat.N_Aim:AddToggle('Toggle Locking', dawg_aim.NPCs.Enabled, Enum.KeyCode.L, function(Boolean)
+					dawg_aim.NPCs.Enabled = Boolean
+				end)
+
+				M.Library.Sections.Combat.N_Aim:AddToggle('Dead Check', dawg_aim.NPCs.DeadCheck, nil, function(Boolean)
+					dawg_aim.NPCs.DeadCheck = Boolean
+				end)
+
+				M.Library.Sections.Combat.N_Aim:AddSlider('Locking Sense', 3, 0.075, 0.5, function(Number)
+					dawg_aim.NPCs.Sensitivity = Number
+				end)
+
+				M.Library.Sections.Combat.N_Aim:AddSlider('Locking Distance', 2000, 100, 450, function(Number)
+					dawg_aim.NPCs.Distance = Number
+				end)
+
+				M.Library.Sections.Combat.N_Aim:AddDropdown('Locking Part',{'Head','Torso','HumanoidRootPart'},'Head',function(a) 
+					dawg_aim.NPCs.LockPart = a
+				end)
+			end)
+		end)
+		
+		
+		task.spawn(function() -- Handling Specific Events / Connections
+			local PlayerGui = Player.PlayerGui
+
+			game:GetService("ProximityPromptService").PromptShown:Connect(function(ActualPrompt)
+				if B.Values.FastUsage.PromptsBool == true then
+					if ActualPrompt:GetAttribute("flag_duration") == nil then
+						ActualPrompt:SetAttribute("flag_duration", ActualPrompt.HoldDuration)
+					end
+					ActualPrompt.HoldDuration = 0
+				elseif ActualPrompt:GetAttribute("flag_duration") ~= nil then
+					if ActualPrompt:GetAttribute("flag_duration") ~= ActualPrompt.HoldDuration then
+						ActualPrompt.HoldDuration = ActualPrompt:GetAttribute("flag_duration")
+					end
+				end
+			end)
+		end)
+
+
+
+
+		local AU
+		if ScriptDB.Membership_Info.Account ~= nil then
+			AU = game:GetService("UserService"):GetUserInfosByUserIdsAsync({ScriptDB.Membership_Info.Account})[1].Username
+		else
+			AU = "unobstructed"
+		end
+
+		M.Library.Sections.Membership.Information:AddLabel(' Version: '..ScriptDB.Membership_Info.Build)
+		M.Library.Sections.Membership.Information:AddLabel(' Account: '..AU)
+		M.Library.Sections.Membership.Information:AddLabel(' License: '..tostring(B.Plugins.__Commas(ScriptDB.Membership_Info.Days)).." days")
+
+		--  \\  Crosshair Setup  //  --
+		task.spawn(function()
+			local Current_Path = M.Library.Sections
+			local Current_Section = Current_Path.Misc.Crosshair
+
+			B.Values.Crosshair = {
+
+				Enabled = true, -- Inverted (if true then default'll be false)
+				Color = Color3.fromRGB(255, 255, 255),
+				ViewMode = Enum.ResamplerMode.Default,
+				Scale = 1,
+				Image = Crosshair.defaults["Lines 1"],
+				Transparency = 0,
+			}
+
+			local CrosshairValues = B.Values.Crosshair
+
+			--local default_table = {
+			--	Crosshair_Color = Color3.fromRGB(255, 255, 255),
+			--	Crosshair_ViewMode = Enum.ResamplerMode.Default,
+			--	Crosshair_Transparency = 0,
+			--	Crosshair_Image = 0,
+			--	Crosshair_Scale = 1,
+			--}
+
+			Crosshair.init()
+			Crosshair.new("new", {
+				Crosshair_Color = 			CrosshairValues.Color,
+				Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+				Crosshair_Transparency = 	CrosshairValues.Transparency,
+				Crosshair_Image = 			CrosshairValues.Image,
+				Crosshair_Scale = 			CrosshairValues.Scale,
+			})
+			Crosshair.toggle(not CrosshairValues.Enabled)
+
+
+			Current_Section:AddToggle('Crosshair', CrosshairValues.Enabled, Enum.KeyCode.M, function(Boolean)
+				CrosshairValues.Enabled = Boolean
+				Crosshair.toggle(Boolean)
+			end)
+
+			Current_Section:AddSlider('Size', 5, 0.1, 1, function(Number)
+				CrosshairValues.Scale = Number
+				Crosshair.new("upd", {
+					Crosshair_Color = 			CrosshairValues.Color,
+					Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+					Crosshair_Transparency = 	CrosshairValues.Transparency,
+					Crosshair_Image = 			CrosshairValues.Image,
+					Crosshair_Scale = 			CrosshairValues.Scale,
+				})
+			end)
+
+			Current_Section:AddSlider('Transparency', 1, 0, 0, function(Number)
+				CrosshairValues.Transparency = Number
+				Crosshair.new("upd", {
+					Crosshair_Color = 			CrosshairValues.Color,
+					Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+					Crosshair_Transparency = 	CrosshairValues.Transparency,
+					Crosshair_Image = 			CrosshairValues.Image,
+					Crosshair_Scale = 			CrosshairValues.Scale,
+				})
+			end)
+
+			Current_Section:AddColorPallete('Color', CrosshairValues.Color,function(a) 
+				CrosshairValues.Color = a
+				Crosshair.new("upd", {
+					Crosshair_Color = 			CrosshairValues.Color,
+					Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+					Crosshair_Transparency = 	CrosshairValues.Transparency,
+					Crosshair_Image = 			CrosshairValues.Image,
+					Crosshair_Scale = 			CrosshairValues.Scale,
+				})
+			end)
+
+			Current_Section:AddDropdown('ResampleMode',{'Default','Pixeled'},'Default',function(a) 
+				if a == 'Default' then
+					CrosshairValues.ViewMode = Enum.ResamplerMode.Default
+				elseif a == 'Pixeled' then
+					CrosshairValues.ViewMode = Enum.ResamplerMode.Pixelated
+				end
+				Crosshair.new("upd", {
+					Crosshair_Color = 			CrosshairValues.Color,
+					Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+					Crosshair_Transparency = 	CrosshairValues.Transparency,
+					Crosshair_Image = 			CrosshairValues.Image,
+					Crosshair_Scale = 			CrosshairValues.Scale,
+				})
+			end)
+
+			local variants = {}
+			for variant,_ in Crosshair.defaults do
+				table.insert(variants, variant)
+			end
+
+			Current_Section:AddDropdown('Crosshairs',variants,variants[1],function(a) 
+				CrosshairValues.Image = Crosshair.defaults[a]
+				Crosshair.new("upd", {
+					Crosshair_Color = 			CrosshairValues.Color,
+					Crosshair_ViewMode = 		CrosshairValues.ViewMode,
+					Crosshair_Transparency = 	CrosshairValues.Transparency,
+					Crosshair_Image = 			CrosshairValues.Image,
+					Crosshair_Scale = 			CrosshairValues.Scale,
+				})
+			end)
+		end)
+
+		local camdistance = true
+		M.Library.Sections.Misc.Character:AddToggle('Max-CameraDistance', camdistance, nil, function(Boolean)
+			camdistance = Boolean
+			B.Scripts.Toggle_CameraProperties(Boolean, "distance")
+		end)
+		
+		local occlusion = true
+		M.Library.Sections.Misc.Character:AddToggle('Camera-Occlusion', occlusion, nil, function(Boolean)
+			occlusion = Boolean
+			B.Scripts.Toggle_CameraProperties(Boolean, "mode")
+		end)
+		
+		local fastprompts = true
+		M.Library.Sections.Misc.Character:AddToggle('Fast-Prompts', fastprompts, nil, function(Boolean)
+			fastprompts = Boolean
+		end)
+
+		M.Library.Sections.Misc.Character:AddButton('Get Teleport-Tool', function() 
+			TeleportTool()
+		end)
+
+		M.Library.Sections.Membership.Information:AddLabel('\nMenu')	
+
+		M.Library.Sections.Membership.Information:AddKeyBind('Toggle ui', Enum.KeyCode.Insert, function() 
+			_G.IsScreenGui_toggler_actor.Enabled = not _G.IsScreenGui_toggler_actor.Enabled
+		end)
+
+		coroutine.wrap(function()
+			while wait(1) do
+				local time = 'TIME '..os.date("%H:%M:%S", os.time())
+				local fps = A.fps
+				local t = ''			
+				t = time.." / "..fps
+				B.Assets.Windows.WaterM:ChangeText(t)
+			end
+		end)()
+
+		B.Assets.Windows.WaterM:Visible(true)
+	end)
+
+	coroutine.resume(Script)
+end
